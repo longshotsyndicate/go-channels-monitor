@@ -26,7 +26,32 @@ func TestAdd(t *testing.T) {
 	if state.Cap != 10 {
 		t.Errorf("expected cap 10 got %d", state.Cap)
 	}
+}
 
+func TestAddNamed(t *testing.T) {
+
+	m := New()
+
+	c := make(chan chan bool, 10)
+
+	err := m.AddNamed("foo", c)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	state := m.Get("foo")
+
+	if state == nil {
+		t.Fatal("state was nil")
+	}
+
+	if state.Len != 0 {
+		t.Errorf("expected len 0 got %d", state.Len)
+	}
+
+	if state.Cap != 10 {
+		t.Errorf("expected cap 10 got %d", state.Cap)
+	}
 }
 
 func TestGet(t *testing.T) {
