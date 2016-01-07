@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/longshotsyndicate/smithers/channel"
+	"github.com/longshotsyndicate/go-channels-monitor/channel"
 )
 
 type Service struct {
