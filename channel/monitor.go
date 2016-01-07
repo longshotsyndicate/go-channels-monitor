@@ -17,6 +17,7 @@ func New() *Monitor {
 	}
 }
 
+// AddNamed adds a channel to be monitor and associates the channel with this name.
 func (this *Monitor) AddNamed(name string, channel interface{}) error {
 
 	//reflect on the input to get the correct channel type.
@@ -33,7 +34,7 @@ func (this *Monitor) AddNamed(name string, channel interface{}) error {
 	return nil
 }
 
-// Add a channel to be monitor, associate the channel with a name.
+// Add a channel
 func (this *Monitor) Add(channel interface{}) (string, error) {
 
 	//name the channel using the callers file and line.
@@ -44,15 +45,15 @@ func (this *Monitor) Add(channel interface{}) (string, error) {
 	name := fmt.Sprintf("%s:%d %s\n", file, line, f.Name())
 
 	return name, this.AddNamed(name, channel)
-
 }
 
-// ChanState struct holding Length and Capacity
+// ChanState struct holding Length and Capacity.
 type ChanState struct {
-	Len int
-	Cap int
+	Len int `json:"length"`
+	Cap int `json:"capacity"`
 }
 
+// Get returns the channel state for a give channel name.
 func (this *Monitor) Get(name string) *ChanState {
 
 	ch, found := this.chans[name]
