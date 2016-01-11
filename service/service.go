@@ -5,23 +5,21 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/longshotsyndicate/go-channels-monitor/channel"
+	"github.com/longshotsyndicate/go-channels-monitor/monitor"
 )
 
 type Service struct {
-	url     string
-	errc    chan error
-	name    string
-	monitor *channel.Monitor
+	url  string
+	errc chan error
+	name string
 }
 
-func New(monitor *channel.Monitor, serviceName string, url string, errc chan error) *Service {
+func New(serviceName string, url string, errc chan error) *Service {
 
 	return &Service{
-		url:     url,
-		errc:    errc,
-		name:    serviceName,
-		monitor: monitor,
+		url:  url,
+		errc: errc,
+		name: serviceName,
 	}
 }
 
@@ -37,7 +35,7 @@ func (this *Service) start() {
 }
 
 func (this *Service) chanHandler(w http.ResponseWriter, r *http.Request) {
-	chStats := this.monitor.GetAll()
+	chStats := monitor.GetAll()
 
 	resp := &ServiceChannelsStatus{
 		Service:  this.name,
@@ -56,8 +54,8 @@ func (this *Service) chanHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 type ServiceChannelsStatus struct {
-	Service  string `json:"service"`
-	Channels map[string]*channel.ChanState
+	Service  string                        `json:"service"`
+	Channels map[string]*monitor.ChanState `json:"channels"`
 }
 
 type Config struct {

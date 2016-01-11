@@ -1,45 +1,23 @@
-package channel
+package monitor
 
 import "testing"
 
-func TestAdd(t *testing.T) {
-
-	m := New()
-
-	c := make(chan chan bool, 10)
-
-	name, err := m.Add(c)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	state := m.Get(name)
-
-	if state == nil {
-		t.Fatal("state was nil")
-	}
-
-	if state.Len != 0 {
-		t.Errorf("expected len 0 got %d", state.Len)
-	}
-
-	if state.Cap != 10 {
-		t.Errorf("expected cap 10 got %d", state.Cap)
-	}
+func clear() {
+	chans = make(map[string]interface{})
 }
 
 func TestAddNamed(t *testing.T) {
 
-	m := New()
+	clear()
 
 	c := make(chan chan bool, 10)
 
-	err := m.AddNamed("foo", c)
+	err := AddNamed("foo", c)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	state := m.Get("foo")
+	state := Get("foo")
 
 	if state == nil {
 		t.Fatal("state was nil")
@@ -54,20 +32,38 @@ func TestAddNamed(t *testing.T) {
 	}
 }
 
+func TestAddAll(t *testing.T) {
+
+	clear()
+
+	c := make(chan chan bool, 10)
+	d := make(chan bool, 20)
+
+	AddNamed("c", c)
+	AddNamed("d", d)
+
+	states := GetAll()
+
+	if len(states) != 2 {
+		t.Errorf("expected 2 states but got %d", len(states))
+	}
+
+}
+
 func TestGet(t *testing.T) {
 
-	m := New()
+	clear()
 
 	c := make(chan struct {
 		Bar int
 		Meh string
 	}, 10)
 
-	if err := m.AddNamed("foo", c); err != nil {
+	if err := AddNamed("foo", c); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	state := m.Get("foo")
+	state := Get("foo")
 
 	if state == nil {
 		t.Fatal("state was nil")
@@ -88,7 +84,7 @@ func TestGet(t *testing.T) {
 		1, "meh",
 	}
 
-	state = m.Get("foo")
+	state = Get("foo")
 
 	if state == nil {
 		t.Fatal("state was nil")
@@ -103,7 +99,7 @@ func TestGet(t *testing.T) {
 	}
 
 	<-c
-	state = m.Get("foo")
+	state = Get("foo")
 
 	if state == nil {
 		t.Fatal("state was nil")
@@ -120,7 +116,7 @@ func TestGet(t *testing.T) {
 
 func TestGetAll(t *testing.T) {
 
-	m := New()
+	clear()
 
 	c := make(chan struct {
 		Bar int
@@ -129,13 +125,13 @@ func TestGetAll(t *testing.T) {
 
 	d := make(chan int, 4)
 
-	foo, err := m.Add(c)
-	if err != nil {
+	foo := "c"
+	if err := AddNamed(foo, c); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	bar, err := m.Add(d)
-	if err != nil {
+	bar := "d"
+	if err := AddNamed(bar, d); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
@@ -149,7 +145,7 @@ func TestGetAll(t *testing.T) {
 	d <- 1
 	d <- 2
 
-	states := m.GetAll()
+	states := GetAll()
 	if len(states) != 2 {
 		t.Errorf("expected 2 states but got %d", len(states))
 	}
