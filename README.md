@@ -18,7 +18,10 @@ $ go get github.com/longshotsyndicate/go-channels-monitor
   
   log.Printf("foo len: %d cap: %d", properties.Len, properties.Cap)
   
-  //add this monitor to the service
+```
+## Service
+The service type allows you to query for channel properties.
+```go
   
   //async error reporting
   errc := make(chan error)
@@ -33,7 +36,7 @@ $ go get github.com/longshotsyndicate/go-channels-monitor
   
 ```
 
-##Query Response
+###Query Response
 Making a GET request on `your-ip:9999/channels` will result in the following reponse:
 ```json
 {"service":"my-service",
