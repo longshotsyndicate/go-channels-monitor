@@ -10,6 +10,14 @@ $ go get github.com/longshotsyndicate/go-channels-monitor
 ```go
   monitor := channel.NewMonitor()
   
+  //async error reporting
+  errc := make(chan error)
+  go func() {
+    for _, err := range errc {
+      log.Printf("Error: %v", err)
+    }
+  }()
+  
   //create and start the service that responds with channel properties.
   service.New(monitor, "my-service", ":9999", errc).Start()
 
