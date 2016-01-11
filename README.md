@@ -8,7 +8,17 @@ $ go get github.com/longshotsyndicate/go-channels-monitor
 
 ##Usage
 ```go
-  monitor := channel.NewMonitor()
+
+  foo := make(chan bool, 100)
+  
+  // add your channel to be monitored.
+  monitor.AddNamed("foo", channel)
+  
+  properties := monitor.Get("foo")
+  
+  log.Printf("foo len: %d cap: %d", properties.Len, properties.Cap)
+  
+  //add this monitor to the service
   
   //async error reporting
   errc := make(chan error)
@@ -19,15 +29,7 @@ $ go get github.com/longshotsyndicate/go-channels-monitor
   }()
   
   //create and start the service that responds with channel properties.
-  service.New(monitor, "my-service", ":9999", errc).Start()
-
-  foo := make(chan bool, 100)
-  
-  // add your channel to be monitored.
-  monitor.AddNamed("foo", channel)
-  properties := monitor.Get("foo")
-  
-  log.Printf("foo len: %d cap: %d", properties.Len, properties.Cap)
+  service.New("my-service", ":9999", errc).Start()
   
 ```
 
