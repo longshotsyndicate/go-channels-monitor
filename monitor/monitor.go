@@ -9,8 +9,12 @@ import (
 var chans = make(map[string]interface{})
 var chmu sync.RWMutex
 
-// AddNamed adds a channel to be monitor and associates the channel with this name.
-func AddNamed(name string, channel interface{}) error {
+// AddNamed adds a channel to be monitor and associates the channel with this name and suffix.
+func AddNamed(name, suffix string, channel interface{}) error {
+
+	if suffix != "" {
+		name = name + "-" + suffix
+	}
 
 	//reflect on the input to get the correct channel type.
 	if reflect.TypeOf(channel).Kind() != reflect.Chan {
@@ -34,7 +38,11 @@ type ChanState struct {
 }
 
 // Get returns the channel state for a give channel name.
-func Get(name string) *ChanState {
+func Get(name, suffix string) *ChanState {
+
+	if suffix != "" {
+		name = name + "-" + suffix
+	}
 
 	chmu.RLock()
 	defer chmu.RUnlock()
@@ -58,7 +66,7 @@ func GetAll() map[string]*ChanState {
 	chmu.RLock()
 	defer chmu.RUnlock()
 	for name, _ := range chans {
-		results[name] = Get(name)
+		results[name] = Get(name, "")
 	}
 
 	return results
