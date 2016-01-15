@@ -6,7 +6,7 @@ import (
 	"sync"
 )
 
-var chans = make(map[string]interface{})
+var chans = make(map[key]interface{})
 var chmu sync.RWMutex
 
 // AddNamed adds a channel to be monitor and associates the channel with this name and suffix.
@@ -23,37 +23,46 @@ func AddNamed(name, suffix string, channel interface{}) error {
 
 	chmu.Lock()
 	defer chmu.Unlock()
-	if _, found := chans[name]; found {
+
+	k := key{name: name, suffix: suffix}
+
+	if _, found := chans[k]; found {
 		return fmt.Errorf("channel with name: %s already being monitored.", name)
 	}
-	chans[name] = channel
+	chans[k] = channel
 
 	return nil
 }
 
 // ChanState struct holding Length and Capacity.
 type ChanState struct {
-	Len int `json:"length"`
-	Cap int `json:"capacity"`
+	Len      int    `json:"length"`
+	Cap      int    `json:"capacity"`
+	Instance string `json:"instance"`
+}
+
+type key struct {
+	name   string
+	suffix string
 }
 
 // Get returns the channel state for a give channel name.
 func Get(name, suffix string) *ChanState {
 
-	if suffix != "" {
-		name = name + "-" + suffix
-	}
-
 	chmu.RLock()
 	defer chmu.RUnlock()
-	ch, found := chans[name]
+
+	k := key{name: name, suffix: suffix}
+
+	ch, found := chans[k]
 	if !found {
 		return nil
 	}
 
 	return &ChanState{
-		Len: reflect.ValueOf(ch).Len(),
-		Cap: reflect.ValueOf(ch).Cap(),
+		Len:      reflect.ValueOf(ch).Len(),
+		Cap:      reflect.ValueOf(ch).Cap(),
+		Instance: k.suffix,
 	}
 
 }
@@ -65,8 +74,8 @@ func GetAll() map[string]*ChanState {
 
 	chmu.RLock()
 	defer chmu.RUnlock()
-	for name, _ := range chans {
-		results[name] = Get(name, "")
+	for k, _ := range chans {
+		results[k.name] = Get(k.name, k.suffix)
 	}
 
 	return results
