@@ -11,12 +11,14 @@ $ go get github.com/longshotsyndicate/go-channels-monitor
 
   foo := make(chan bool, 100)
   
-  // add your channel to be monitored.
-  monitor.AddNamed("foo", channel)
+  // add your channel to be monitored, optionally specifying a string instance id for the channel.
+  //in this example we are registering one of potentially many log-writer channels, each with an id like "instance-10"
+  //instances need to be unique for the channel name but not globally unique. 
+  monitor.AddNamed("log-writer", "instance-"+strconv.Itoa(nLogWriters++), channel)
   
-  properties := monitor.Get("foo")
+  properties := monitor.Get("log-writer")
   
-  log.Printf("foo len: %d cap: %d", properties.Len, properties.Cap)
+  log.Printf("log-writer len: %d, cap: %d, instance: %s", properties.Len, properties.Cap, properties.Instance)
   
 ```
 ## Service
@@ -41,7 +43,7 @@ Making a GET request on `your-ip:9999/channels` will result in the following rep
 ```json
 {"service":"my-service",
   "channels":{
-    "foo":{"length":0,"capacity":100}
+    "foo":{"length":0,"capacity":100, "instance": "10"}
   }
 }
 ```
