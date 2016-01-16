@@ -9,12 +9,9 @@ import (
 var chans = make(map[key]interface{})
 var chmu sync.RWMutex
 
-// AddNamed adds a channel to be monitor and associates the channel with this name and suffix.
-func AddNamed(name, suffix string, channel interface{}) error {
-
-	if suffix != "" {
-		name = name + "-" + suffix
-	}
+// AddNamed adds a channel to be monitor and associates the channel 
+// with this name and, optionally, the instance of this named channel (there may be many)
+func AddNamed(name, instance string, channel interface{}) error {
 
 	//reflect on the input to get the correct channel type.
 	if reflect.TypeOf(channel).Kind() != reflect.Chan {
@@ -24,7 +21,7 @@ func AddNamed(name, suffix string, channel interface{}) error {
 	chmu.Lock()
 	defer chmu.Unlock()
 
-	k := key{name: name, suffix: suffix}
+	k := key{name: name, instance: instance}
 
 	if _, found := chans[k]; found {
 		return fmt.Errorf("channel with name: %s already being monitored.", name)
@@ -43,16 +40,16 @@ type ChanState struct {
 
 type key struct {
 	name   string
-	suffix string
+	instance string
 }
 
 // Get returns the channel state for a give channel name.
-func Get(name, suffix string) *ChanState {
+func Get(name, instance string) *ChanState {
 
 	chmu.RLock()
 	defer chmu.RUnlock()
 
-	k := key{name: name, suffix: suffix}
+	k := key{name: name, instance: instance}
 
 	ch, found := chans[k]
 	if !found {
@@ -62,7 +59,7 @@ func Get(name, suffix string) *ChanState {
 	return &ChanState{
 		Len:      reflect.ValueOf(ch).Len(),
 		Cap:      reflect.ValueOf(ch).Cap(),
-		Instance: k.suffix,
+		Instance: k.instance,
 	}
 
 }
@@ -75,7 +72,7 @@ func GetAll() map[string]*ChanState {
 	chmu.RLock()
 	defer chmu.RUnlock()
 	for k, _ := range chans {
-		results[k.name] = Get(k.name, k.suffix)
+		results[k.name] = Get(k.name, k.instance)
 	}
 
 	return results
