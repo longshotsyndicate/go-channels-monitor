@@ -16,7 +16,7 @@ $ go get github.com/longshotsyndicate/go-channels-monitor
   //instances need to be unique for the channel name but not globally unique. 
   monitor.AddNamed("bool-channel-name", "instance-"+strconv.Itoa(nLogWriters++), boolChannel)
   
-  properties := monitor.Get("bool-channel-name")
+  properties := monitor.Get("bool-channel-name", "instance-1")
   
   log.Printf("bool-channel-name len: %d, cap: %d, instance: %s", properties.Len, properties.Cap, properties.Instance)
   
