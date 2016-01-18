@@ -43,7 +43,7 @@ Making a GET request on `your-ip:9999/channels` will result in the following rep
 ```json
 {"service":"bool-channel-name",
   "channels":{
-    "foo":{"length":0,"capacity":100, "instance": "10"}
+    "foo":{"length":0,"capacity":100, "instance": "instance-1"}
   }
 }
 ```
