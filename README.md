@@ -1,5 +1,5 @@
 # go-channels-monitor
-go-channels-monitor is a utility and service for keeping track of channel properties and reporting on them. 
+go-channels-monitor is a utility and service for keeping track of channel capacities and reporting on them. 
 
 ##Install
 ```bash
