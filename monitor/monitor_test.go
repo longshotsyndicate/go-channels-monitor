@@ -3,7 +3,7 @@ package monitor
 import "testing"
 
 func clear() {
-	chans = make(map[string]interface{})
+	chans = make(map[key]interface{})
 }
 
 func TestAddNamed(t *testing.T) {
@@ -12,12 +12,12 @@ func TestAddNamed(t *testing.T) {
 
 	c := make(chan chan bool, 10)
 
-	err := AddNamed("foo", c)
+	err := AddNamed("foo", "", c)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	state := Get("foo")
+	state := Get("foo", "")
 
 	if state == nil {
 		t.Fatal("state was nil")
@@ -32,15 +32,15 @@ func TestAddNamed(t *testing.T) {
 	}
 }
 
-func TestAddAll(t *testing.T) {
+func TestInstance(t *testing.T) {
 
 	clear()
 
 	c := make(chan chan bool, 10)
 	d := make(chan bool, 20)
 
-	AddNamed("c", c)
-	AddNamed("d", d)
+	AddNamed("c", "foo-1", c)
+	AddNamed("d", "foo-2", d)
 
 	states := GetAll()
 
@@ -59,11 +59,11 @@ func TestGet(t *testing.T) {
 		Meh string
 	}, 10)
 
-	if err := AddNamed("foo", c); err != nil {
+	if err := AddNamed("foo", "", c); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	state := Get("foo")
+	state := Get("foo", "")
 
 	if state == nil {
 		t.Fatal("state was nil")
@@ -84,7 +84,7 @@ func TestGet(t *testing.T) {
 		1, "meh",
 	}
 
-	state = Get("foo")
+	state = Get("foo", "")
 
 	if state == nil {
 		t.Fatal("state was nil")
@@ -99,7 +99,7 @@ func TestGet(t *testing.T) {
 	}
 
 	<-c
-	state = Get("foo")
+	state = Get("foo", "")
 
 	if state == nil {
 		t.Fatal("state was nil")
@@ -126,12 +126,12 @@ func TestGetAll(t *testing.T) {
 	d := make(chan int, 4)
 
 	foo := "c"
-	if err := AddNamed(foo, c); err != nil {
+	if err := AddNamed(foo, "", c); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
 	bar := "d"
-	if err := AddNamed(bar, d); err != nil {
+	if err := AddNamed(bar, "", d); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
