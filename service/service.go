@@ -10,28 +10,28 @@ import (
 
 type Service struct {
 	url  string
-	errc chan error
 	name string
 }
 
-func New(serviceName string, url string, errc chan error) *Service {
+func New(serviceName string, url string) *Service {
 
 	return &Service{
 		url:  url,
-		errc: errc,
 		name: serviceName,
 	}
 }
 
 func (this *Service) Start() {
 	http.HandleFunc("/channels", this.chanHandler)
-	go this.start()
+	go func() {
+		if err := this.start(); err != nil {
+			panic(err)
+		}
+	}()
 }
 
-func (this *Service) start() {
-	if err := http.ListenAndServe(this.url, nil); err != nil {
-		this.errc <- err
-	}
+func (this *Service) start() error {
+	return http.ListenAndServe(this.url, nil)
 }
 
 func (this *Service) chanHandler(w http.ResponseWriter, r *http.Request) {
